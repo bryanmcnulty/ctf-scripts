@@ -13,16 +13,16 @@ cd $log_dir
 echo "[+] Starting TCP scan"
 sudo nmap -v -Pn -sS -n -p $tcp_ports --min-rate=1000 -T4 $1 -oN ./tcp-discovery.log
 
-open_tcp_ports=$(grep '^[0-9]' ./tcp-discovery.log |
+open_tcp_ports=$(grep -E '^[0-9]' ./tcp-discovery.log |
 	cut -d '/' -f 1 |
 	tr '\n' ',' |
 	sed 's/,$//')
 
-[ -n "$open_tcp_ports" ] && echo "[+] Found open TCP ports: $open_tcp_ports"
+[ -n "$open_tcp_ports" ] && echo "[+] Found relevant TCP ports: $open_tcp_ports"
 echo "[+] Starting UDP scan"
 sudo nmap -v -Pn -sU -n -p $udp_ports --min-rate=50 -T4 $1 -oN ./udp-discovery.log
 
-open_udp_ports=$(grep '^[0-9].* *open +' ./udp-discovery.log |
+open_udp_ports=$(grep -E '^[0-9].* *open +' ./udp-discovery.log |
 	cut -d '/' -f 1 |
 	tr '\n' ',' |
 	sed 's/,$//')
@@ -36,7 +36,7 @@ mkdir ./tcp ./udp
 cd $OLDPWD
 mkdir -p ./logs
 
-dir="./logs/port-scan-$(date +%s)"
+dir="./logs/ctfscan-$1-$(date +%s)"
 mv $log_dir $dir
 sudo chown -R "$USER:$USER" $dir
 
