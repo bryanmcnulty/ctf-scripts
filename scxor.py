@@ -4,9 +4,11 @@ Author:  Bryan McNulty
 Contact: bryanmcnulty@protonmail.com
 
 This script generates an executable which encrypts sketchy procedure names
-and loads them dynamically along with some shellcode. If the program is
-not given the key at runtime then the decryption will fail and the intended
-shellcode will not execute
+and loads them dynamically along with some shellcode (usually a stager).
+If the program is not given the key at runtime then the decryption will fail
+and the intended shellcode will not execute.
+
+!! I would not recommend using this script on shellcode greater than 10KB !!
 
 Python requirements:
   - argparse
@@ -155,7 +157,7 @@ class ExecutableFactory:
 
 	def generate_key(self, strings, key_length):
 
-		key_material = list((digits + ascii_letters + '_.+-').encode('utf-8'))
+		key_material = list((digits + ascii_letters + '_.+/').encode('utf-8'))
 		key = []
 
 		for i in range(key_length):
@@ -203,12 +205,12 @@ class ExecutableFactory:
 def main():
 
 	parser = argparse.ArgumentParser()
-	parser.add_argument('-f', '--bin', required=True, help='Raw shellcode file')
-	parser.add_argument('-l', '--key-length', default=17, help='XOR key length')
+	parser.add_argument('shellcode', metavar='FILE', help='Raw shellcode file')
+	parser.add_argument('-l', '--key-length', type=int, default=24, help='XOR key length')
 	parser.add_argument('-o', '--output', default='simple.exe', help='Output file')
 	args = parser.parse_args()
 
-	with open(args.bin, 'rb') as file:
+	with open(args.shellcode, 'rb') as file:
 		shellcode = file.read()
 
 	ef = ExecutableFactory()
