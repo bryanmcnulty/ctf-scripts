@@ -4,7 +4,7 @@ import websocket, argparse
 def main():
   parser = argparse.ArgumentParser()
   parser.add_argument('URL', metavar='ws://HOST[:PORT]', help='Target URL')
-  parser.add_argument('-d', '--data', help='Data to send')
+  parser.add_argument('-d', '--data', default='{}', help='Data to send')
   args = parser.parse_args()
 
   ws = websocket.WebSocket()
@@ -12,7 +12,7 @@ def main():
     args.URL = 'ws://'+args.URL
 
   ws.connect(args.URL)
-  ws.send(args.data or '{}')
+  ws.send(args.data)
   response = ws.recv()
   if response:
     print(response)
