@@ -1,9 +1,23 @@
 #!/usr/bin/env bash
 
+ctf_scan="
+Author:  Bryan McNulty
+Contact: bryanmcnulty@protonmail.com
+
+Just a fancy nmap wrapper that I often use
+during the initial recon phase for CTFs
+
+OS: Linux
+
+PATH requirements:
+  - sudo
+  - nmap
+"
+
 [ -z "$1" ] && echo "$0 <IP>" && exit
 
-# UDP ports for DNS,TFTP,KRB5,NTP,SNMP,IPMI,IKE,ISAKMP
-udp_ports="53,69,88,123,161,162,500,623,4500,10161,10162"
+# UDP ports for DNS,TFTP,KRB,RPCBIND,NTP,SNMP,IPMI,IKE,ISAKMP
+udp_ports="53,69,88,111,123,161,162,500,623,4500,10161,10162"
 # All TCP ports
 tcp_ports="-"
 
