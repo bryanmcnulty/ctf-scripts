@@ -42,4 +42,4 @@ invoke() {
   cleanup
 }
 
-invoke "$uri" "$args"
+invoke "$uri" "$args" &> /dev/null
